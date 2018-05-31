@@ -25,17 +25,13 @@ oo = findOverlaps(regions, makeGRangesFromDataFrame(geneMap))
 regions$EnsemblID = NA
 regions$EnsemblID[queryHits(oo) ] = rownames(geneMap)[subjectHits(oo)]
 
-### add number minor alleles
-snpMap$numMinorHom = rowSums(snp == 2,na.rm=TRUE)
-snpMap$numMinorHom_13plus = rowSums(snp[,pd$Age > 13] == 2,na.rm=TRUE)
-
 ################################
 ## bring back in eqtls #########
 ################################
 
 ###### GENE
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/annotated_gene_eqtl_szControl_cisOnly.rda")
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/gene_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/annotated_gene_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/gene_eqtl_szControl_cisOnly.rda")
 geneEqtl = meGeneCis$cis$eqtls
 geneEqtl = geneEqtl[geneEqtl$FDR < 0.01,]
 geneEqtl$gene = as.character(geneEqtl$gene)
@@ -44,8 +40,8 @@ geneEqtl$bonf = p.adjust(geneEqtl$pvalue, "bonf",
 	n = (sigGene$bonf[1]/sigGene$pvalue[1]))
 
 ###### EXON
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/annotated_exon_eqtl_szControl_cisOnly.rda")
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/exon_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/annotated_exon_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/exon_eqtl_szControl_cisOnly.rda")
 exonEqtl = meExonCis$cis$eqtls
 exonEqtl = exonEqtl[exonEqtl$FDR < 0.01,]
 exonEqtl$gene = as.character(exonEqtl$gene)
@@ -54,8 +50,8 @@ exonEqtl$bonf = p.adjust(exonEqtl$pvalue, "bonf",
 	n = (sigExon$bonf[1]/sigExon$pvalue[1]))
 
 ######### TX
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/annotated_transcript_eqtl_szControl_cisOnly.rda")
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/transcript_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/annotated_transcript_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/transcript_eqtl_szControl_cisOnly.rda")
 transcriptEqtl = meTransCis$cis$eqtls
 transcriptEqtl = transcriptEqtl[transcriptEqtl$FDR < 0.01,]
 transcriptEqtl$gene = as.character(transcriptEqtl$gene)
@@ -64,8 +60,8 @@ transcriptEqtl$bonf = p.adjust(transcriptEqtl$pvalue, "bonf",
 	n = (sigTrans$bonf[1]/sigTrans$pvalue[1]))
 	
 ###### JUNCTION
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/annotated_junction_eqtl_szControl_cisOnly.rda")
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/junction_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/annotated_junction_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/junction_eqtl_szControl_cisOnly.rda")
 junctionEqtl = meJxnCis$cis$eqtls
 junctionEqtl = junctionEqtl[junctionEqtl$FDR < 0.01,]
 junctionEqtl$gene = as.character(junctionEqtl$gene)
@@ -74,26 +70,14 @@ junctionEqtl$bonf = p.adjust(junctionEqtl$pvalue, "bonf",
 	n = (sigJxn$bonf[1]/sigJxn$pvalue[1]))
 
 ###### DER
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/annotated_der_eqtl_szControl_cisOnly.rda")
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/der_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/annotated_der_eqtl_szControl_cisOnly.rda")
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/der_eqtl_szControl_cisOnly.rda")
 derEqtl = meDerCis$cis$eqtls
 derEqtl = derEqtl[derEqtl$FDR < 0.01,]
 derEqtl$gene = as.character(derEqtl$gene)
 derEqtl$snps = as.character(derEqtl$snps)
 derEqtl$bonf = p.adjust(derEqtl$pvalue, "bonf", 
 	n = (sigDer$bonf[1]/sigDer$pvalue[1]))
-
-### add number of homozygous minor
-geneEqtl$numMinor13 = snpMap$numMinorHom_13plus[
-	match(geneEqtl$snps, snpMap$SNP)]
-exonEqtl$numMinor13 = snpMap$numMinorHom_13plus[
-	match(exonEqtl$snps, snpMap$SNP)]
-transcriptEqtl$numMinor13 = snpMap$numMinorHom_13plus[
-	match(transcriptEqtl$snps, snpMap$SNP)]
-junctionEqtl$numMinor13 = snpMap$numMinorHom_13plus[
-	match(junctionEqtl$snps, snpMap$SNP)]
-derEqtl$numMinor13 = snpMap$numMinorHom_13plus[
-	match(derEqtl$snps, snpMap$SNP)]
 
 ###########################
 ### add gene and transcript info
@@ -126,12 +110,201 @@ derEqtl$Class = "Novel"
 derEqtl$Class[code2 == "strictExonic"] = "InEns"
 derEqtl$Class[code2 %in% c("exonIntron", "extendUTR")] = "AltStartEnd"
 
+###################
+### try merging ###
+###################
 
-#####################################################
-#### bring replication stats from CMC and GTEX ######
+allEqtls = rbind(geneEqtl, exonEqtl, 
+	transcriptEqtl, junctionEqtl, derEqtl)
+allEqtls$snpRsNum = snpMap$name[match(allEqtls$snps, snpMap$SNP)]
+allEqtls$Type = rep(c("Gene","Exon", "Transcript", "Junction", "ER"),
+	c(nrow(geneEqtl), nrow(exonEqtl), nrow(transcriptEqtl), 
+		nrow(junctionEqtl), nrow(derEqtl)))
 
-#### CMC
-load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/eqtl/joint/rdas/CMC_replication_stats_overall.rda")
+## make smaller 
+allEqtls = DataFrame(allEqtls)
+allEqtls$Class = Rle(allEqtls$Class)
+allEqtls$Type = Rle(allEqtls$Type)
+allEqtls$Type = Rle(allEqtls$Type)
+allEqtls = allEqtls[order(allEqtls$pvalue),]
+names(allEqtls)[1:2] = c("SNP", "Feature")
+
+#############################
+### get transcript info #####
+xx=load("/users/ajaffe/Lieber/Projects/RNAseq/ensembl_V75_feature_to_Tx.rda")
+
+## add annotation from tx
+theTxs = CharacterList(as.list(tMap$nearest_ref))
+names(theTxs) = names(tMap)
+allTx = c(allTx, theTxs)
+
+mmTx = match(allEqtls$Feature, names(allTx))
+tx = CharacterList(vector("list", nrow(allEqtls)))
+tx[!is.na(mmTx)] = allTx[mmTx[!is.na(mmTx)]]
+allEqtls$NumTxEqtl = elementNROWS(tx)
+allEqtls$WhichTx = tx
+
+mmTxGene = match(allEqtls$EnsemblID, names(allTx))
+txGene = CharacterList(vector("list", nrow(allEqtls)))
+txGene[!is.na(mmTxGene)] = allTx[mmTxGene[!is.na(mmTxGene)]]
+allEqtls$NumTxGene = elementNROWS(txGene)
+
+allEqtls$NumTxEqtl = Rle(allEqtls$NumTxEqtl)
+allEqtls$NumTxGene = Rle(allEqtls$NumTxGene)
+
+## add coordinates
+geneMap$coord = with(geneMap, paste0(Chr, ":", Start, "-", End, "(", Strand, ")"))
+tMap$coord = paste0(seqnames(tMap), ":", start(tMap), "-", end(tMap),
+	"(", strand(tMap), ")")
+regions$coord = paste0(seqnames(regions), ":", start(regions), 
+	"-", end(regions),	"(", strand(regions), ")")
+
+coords = c(geneMap$coord, exonMap$coord, tMap$coord, 
+	names(jMap), regions$coord)
+names(coords) = c(rownames(geneMap), rownames(exonMap),
+		names(tMap), names(jMap), names(regions))
+allEqtls$Coordinates = coords[match(allEqtls$Feature, names(coords))]
+
+### add distance
+starts = c(geneMap$Start, exonMap$Start, start(tMap), 
+	start(jMap), start(regions))
+ends = c(geneMap$End, exonMap$End, end(tMap), 
+	end(jMap), end(regions))
+names(starts) = names(ends) = c(rownames(geneMap), rownames(exonMap),
+		names(tMap), names(jMap), names(regions))
+snpPos = snpMap$POS[match(allEqtls$SNP, snpMap$SNP)]	
+tmp = cbind(snpPos - starts[match(allEqtls$Feature, names(coords))],
+		snpPos - ends[match(allEqtls$Feature, names(coords))])
+mins = matrixStats::rowMins(abs(tmp))
+allEqtls$snpDistToFeature = sign(rowMeans(tmp))*mins
+
+rownames(allEqtls) = paste0(allEqtls$SNP, ".", allEqtls$Feature)
+allEqtls = allEqtls[order(allEqtls$pvalue),]
+
+#### CMC replication #####
+load("/dcl01/lieber/ajaffe/PublicData/CMC/replication_eqtl_stats.rda")
+mm = match(rownames(allEqtls), rownames(allEqtlRep))
+
+allEqtls$CMC_statistic = allEqtlRep$statistic[mm]
+allEqtls$CMC_pvalue = allEqtlRep$pvalue[mm]
+allEqtls$CMC_beta = allEqtlRep$beta[mm]
+save(allEqtls, compress=TRUE,
+	file="/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/data/allEqtls.rda")
+	
+#### GTEx replication ####
+load("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/data/gtex_brainEqtl_replication_stats.rda")
+mmGtex = match(rownames(allEqtls), rownames(allEqtlRepGtex))
+allEqtlRepGtex = allEqtlRepGtex[mmGtex,]
+rownames(allEqtlRepGtex) = rownames(allEqtls)
+gtexTstats = allEqtlRepGtex[,grep("statistic", colnames(allEqtlRepGtex))]
+colnames(gtexTstats) = paste0("GTEx_", colnames(gtexTstats))
+allEqtls = cbind(allEqtls, gtexTstats)
+
+save(allEqtls, compress=TRUE,
+	file="/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/data/allEqtls_withGtex.rda")
+	
+#########################
+######### DATABASE ######
+#########################
+
+
+# filter for Age
+pd$usedInEqtlDiscovery = pd$Age > 13
+
+geneExprs = as.matrix(log2(geneRpkm+1))
+exonExprs = as.matrix(log2(exonRpkm+1))
+jxnExprs = as.matrix(log2(jRpkm+1))
+txExprs = as.matrix(log2(tFpkm+1))
+regionExprs = as.matrix(log2(regionMat+1))
+
+## residualize
+mod = model.matrix(~snpPC1 + snpPC2 + snpPC3 + Sex + Dx,
+	data=pd[pd$usedInEqtlDiscovery,])
+
+cleanGeneSub = cleaningY(geneExprs[rownames(geneRpkm) %in% allEqtls$Feature,
+	pd$usedInEqtlDiscovery], cbind(mod, pcsGene),P=1)
+geneMapSub = geneMap[rownames(geneRpkm) %in% allEqtls$Feature,]
+
+cleanExonSub = cleaningY(exonExprs[rownames(exonRpkm) %in% allEqtls$Feature,
+	pd$usedInEqtlDiscovery], cbind(mod, pcsExon),P=1)
+exonMapSub = exonMap[rownames(exonRpkm) %in% allEqtls$Feature,]
+
+cleanJxnSub = cleaningY(jxnExprs[rownames(jRpkm) %in% allEqtls$Feature,
+	pd$usedInEqtlDiscovery], cbind(mod, pcsJxn),P=1)
+jMapSub = jMap[rownames(jRpkm) %in% allEqtls$Feature,]
+
+cleanTxSub = cleaningY(txExprs[rownames(tFpkm) %in% allEqtls$Feature,
+	pd$usedInEqtlDiscovery], cbind(mod, pcsTrans),P=1)
+tMapSub = tMap[rownames(tFpkm) %in% allEqtls$Feature,]
+
+cleanErSub = cleaningY(regionExprs[rownames(regionMat) %in% allEqtls$Feature,
+	pd$usedInEqtlDiscovery], cbind(mod, pcsDer),P=1)
+regionsSub = regions[rownames(regionMat) %in% allEqtls$Feature,]
+
+snpSub = as.matrix(snp[rownames(snp) %in% allEqtls$SNP,pd$usedInEqtlDiscovery])
+snpMapSub = snpMap[rownames(snp) %in% allEqtls$SNP,]
+pdSub = pd[pd$usedInEqtlDiscovery,]
+
+save(pdSub, snpSub, snpMapSub, cleanGeneSub, geneMapSub,
+	cleanExonSub, exonMapSub,cleanJxnSub, jMapSub,
+	cleanTxSub, tMapSub, cleanErSub, regionsSub, compress=TRUE,
+	file = "/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/data/cleaned_eqtl_data_n412_allStats.rda")
+	
+		
+#################################
+### export database files #######
+eqtlStatsOut = allEqtls[,c(1:7,18)]
+eqtlStatsOut = as.data.frame(eqtlStatsOut)
+write.table(eqtlStatsOut, row.names=FALSE, sep = "\t",
+	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/AllEqtls/eqtl_stats_allStats.txt.gz"))
+
+## expression anno
+exprsAnnoOut = allEqtls[,c(2,9:11,13:17)]
+exprsAnnoOut = exprsAnnoOut[!duplicated(exprsAnnoOut$Feature),]
+exprsAnnoOut$chr = ss(exprsAnnoOut$Coordinates, ":")
+exprsAnnoOut$start = as.integer(ss(ss(exprsAnnoOut$Coordinates, ":",2),"-"))
+exprsAnnoOut$end = as.integer(ss(ss(ss(exprsAnnoOut$Coordinates, ":",2),"-",2),"\\("))
+exprsAnnoOut = as.data.frame(exprsAnnoOut)
+exprsAnnoOut$WhichTx = sapply(exprsAnnoOut$WhichTx, paste, collapse=";")
+write.table(exprsAnnoOut, row.names=FALSE, sep = "\t",
+	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/AllEqtls/eqtl_exprsAnno_allStats.txt.gz"))
+
+## SNP anno	
+snpAnnoOut = snpMap
+colnames(snpAnnoOut)[c(1,3,4:5)] = c("chr","pos","Counted","Ref")
+snpAnnoOut$chr = paste0("chr", snpAnnoOut$chr)
+snpAnnoOut = snpAnnoOut[,c(2,6,1,3:5,7)]
+
+snpAnnoOut = as.data.frame(snpAnnoOut)
+write.table(snpAnnoOut, row.names=FALSE, sep = "\t",
+	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/AllEqtls/snpAnno_allConsidered.txt.gz"))
+
+## expression data
+cleanExprs = rbind(cleanGeneSub, cleanExonSub, cleanJxnSub,	cleanTxSub, cleanErSub)
+write.table(cleanExprs, sep = "\t",
+	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/AllEqtls/eqtl_log2cleanExprsData_allStats.txt.gz"))
+
+## snp data
+write.table(snpSub, sep = "\t",
+	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/AllEqtls/eqtl_snpData_allStats.txt.gz"))
+
+## replication stats
+repStatsOut = allEqtls[,c(1:2, 19:34)]
+write.table(repStatsOut, sep = "\t",row.names=FALSE,
+	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/AllEqtls/replication_stats_allStats.txt.gz"))
+
+	
+################
+#### OLD  ######
+################
+
+
+allEqtlRep = allEqtlRep[rownames(allEqtls),]
+colnames(allEqtlRep) = paste0("CMC_", colnames(allEqtlRep))
+allEqtls = cbind(allEqtls, allEqtlRep[,1:4])
+
+
+load("/users/ajaffe/Lieber/Projects/RNAseq/DLPFC_eQTL_paper/joint/rdas/CMC_replication_stats_overall.rda")
 
 sigGene$cmcTested = geneStats$tested[match(sigGene$gene, rownames(geneStats))]
 sigGene$cmcBeta = geneStats$beta[match(sigGene$gene, rownames(geneStats))]
@@ -317,76 +490,7 @@ junctionEqtlRep = junctionEqtl[junctionEqtl$gene %in% sigJxnRep$jxn,]
 transcriptEqtlRep = transcriptEqtl[transcriptEqtl$gene %in% sigTransRep$tx,]
 derEqtlRep = derEqtl[derEqtl$gene %in% sigDerRep$der,]
 
-###################
-### try merging ###
-allEqtlsRep = rbind(geneEqtlRep, exonEqtlRep, 
-	transcriptEqtlRep, junctionEqtlRep, derEqtlRep)
-allEqtlsRep$snpRsNum = snpMap$name[match(allEqtlsRep$snps, snpMap$SNP)]
-allEqtlsRep$Type = rep(c("Gene","Exon", "Transcript", "Junction", "ER"),
-	c(nrow(geneEqtlRep), nrow(exonEqtlRep), nrow(transcriptEqtlRep), 
-		nrow(junctionEqtlRep), nrow(derEqtlRep)))
-allEqtlsRep$statistic = NULL
 
-## make smaller 
-allEqtlsRep = DataFrame(allEqtlsRep)
-allEqtlsRep$Class = Rle(allEqtlsRep$Class)
-allEqtlsRep$Type = Rle(allEqtlsRep$Type)
-allEqtlsRep$Type = Rle(allEqtlsRep$Type)
-allEqtlsRep = allEqtlsRep[order(allEqtlsRep$pvalue),]
-names(allEqtlsRep)[1:2] = c("SNP", "Feature")
-
-#############################
-### get transcript info #####
-xx=load("/users/ajaffe/Lieber/Projects/RNAseq/ensembl_V75_feature_to_Tx.rda")
-
-## add annotation from tx
-theTxs = CharacterList(as.list(tMap$nearest_ref))
-names(theTxs) = names(tMap)
-allTx = c(allTx, theTxs)
-
-mmTx = match(allEqtlsRep$Feature, names(allTx))
-tx = CharacterList(vector("list", nrow(allEqtlsRep)))
-tx[!is.na(mmTx)] = allTx[mmTx[!is.na(mmTx)]]
-allEqtlsRep$NumTxEqtl = elementLengths(tx)
-allEqtlsRep$WhichTx = tx
-
-mmTxGene = match(allEqtlsRep$EnsemblID, names(allTx))
-txGene = CharacterList(vector("list", nrow(allEqtlsRep)))
-txGene[!is.na(mmTxGene)] = allTx[mmTxGene[!is.na(mmTxGene)]]
-allEqtlsRep$NumTxGene = elementLengths(txGene)
-
-allEqtlsRep$NumTxEqtl = Rle(allEqtlsRep$NumTxEqtl)
-allEqtlsRep$NumTxGene = Rle(allEqtlsRep$NumTxGene)
-
-## add coordinates
-geneMap$coord = with(geneMap, paste0(Chr, ":", Start, "-", End, "(", Strand, ")"))
-tMap$coord = paste0(seqnames(tMap), ":", start(tMap), "-", end(tMap),
-	"(", strand(tMap), ")")
-regions$coord = paste0(seqnames(regions), ":", start(regions), 
-	"-", end(regions),	"(", strand(regions), ")")
-
-coords = c(geneMap$coord, exonMap$coord, tMap$coord, 
-	names(jMap), regions$coord)
-names(coords) = c(rownames(geneMap), rownames(exonMap),
-		names(tMap), names(jMap), names(regions))
-allEqtlsRep$Coordinates = coords[match(allEqtlsRep$Feature, names(coords))]
-
-### add distance
-starts = c(geneMap$Start, exonMap$Start, start(tMap), 
-	start(jMap), start(regions))
-ends = c(geneMap$End, exonMap$End, end(tMap), 
-	end(jMap), end(regions))
-names(starts) = names(ends) = c(rownames(geneMap), rownames(exonMap),
-		names(tMap), names(jMap), names(regions))
-snpPos = snpMap$POS[match(allEqtlsRep$SNP, snpMap$SNP)]	
-tmp = cbind(snpPos - starts[match(allEqtlsRep$Feature, names(coords))],
-		snpPos - ends[match(allEqtlsRep$Feature, names(coords))])
-mins = matrixStats::rowMins(abs(tmp))
-allEqtlsRep$snpDistToFeature = sign(rowMeans(tmp))*mins
-
-save(allEqtlsRep, compress=TRUE,
-	file="/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/data/allEqtlsRep.rda")
-	
 ### filter to best feature stats
 sigEqtlsRep = allEqtlsRep[!duplicated(allEqtlsRep$Feature),]
 save(sigEqtlsRep, compress=TRUE,
@@ -425,89 +529,3 @@ save(sigExon, sigJxn, sigDer, sigGene, sigTrans, compress=TRUE,
 
 load("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/data/allEqtlsRep.rda")
 load("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/data/sigEqtlsRep.rda")
-
-# filter for Age
-aIndex= which(pd$Age > 13)
-pdSub = pd[aIndex,]
-
-snpSub = as.matrix(snp[rownames(snp) %in% allEqtlsRep$SNP,aIndex])
-snpMapSub = snpMap[rownames(snp) %in% allEqtlsRep$SNP,]
-
-geneRpkmSub = as.matrix(log2(geneRpkm[
-	rownames(geneRpkm) %in% sigEqtlsRep$Feature,aIndex]+1))
-geneMapSub = geneMap[rownames(geneMap) %in% sigEqtlsRep$Feature,]
-
-exonRpkmSub = as.matrix(log2(exonRpkm[
-	rownames(exonRpkm) %in% sigEqtlsRep$Feature,aIndex]+1))
-exonMapSub = exonMap[rownames(exonMap) %in% sigEqtlsRep$Feature,]
-
-jRpkmSub = as.matrix(log2(jRpkm[
-	rownames(jRpkm) %in% sigEqtlsRep$Feature,aIndex]+1))
-jMapSub = jMap[names(jMap) %in% sigEqtlsRep$Feature]
-
-tFpkmSub = as.matrix(log2(tFpkm[
-	rownames(tFpkm) %in% sigEqtlsRep$Feature,aIndex]+1))
-tMapSub = tMap[names(tMap) %in% sigEqtlsRep$Feature]
-
-regionMatSub = as.matrix(log2(regionMat[
-	rownames(regionMat) %in% sigEqtlsRep$Feature,aIndex]+1))
-regionsSub = regions[names(regions) %in% sigEqtlsRep$Feature]
-
-## residualize
-mod = model.matrix(~snpPC1 + snpPC2 + snpPC3 + Sex + Dx,data=pdSub)
-
-cleanGeneSub = cleaningY(geneRpkmSub, cbind(mod, pcsGene),P=1)
-cleanExonSub = cleaningY(exonRpkmSub, cbind(mod, pcsExon),P=1)
-cleanJxnSub = cleaningY(jRpkmSub, cbind(mod, pcsJxn),P=1)
-cleanTxSub = cleaningY(tFpkmSub, cbind(mod, pcsTrans),P=1)
-cleanErSub = cleaningY(regionMatSub, cbind(mod, pcsDer),P=1)
-
-save(pdSub, snpSub, snpMapSub, 
-	geneRpkmSub, cleanGeneSub, geneMapSub,
-	exonRpkmSub, cleanExonSub, exonMapSub,
-	jRpkmSub, cleanJxnSub, jMapSub,
-	tFpkmSub, cleanTxSub, tMapSub,
-	regionMatSub, cleanErSub, regionsSub, compress=TRUE,
-	file = "/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/data/cleaned_eqtl_data_subset_n412.rda")
-	
-		
-#################################
-### export database files #######
-eqtlStatsOut = allEqtlsRep[,1:6]
-eqtlStatsOut = as.data.frame(eqtlStatsOut)
-write.table(eqtlStatsOut, row.names=FALSE, sep = "\t",
-	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/eqtl_stats_replicate.txt.gz"))
-
-## expression anno
-exprsAnnoOut = allEqtlsRep[,c(2,7:9,11:ncol(allEqtlsRep))]
-exprsAnnoOut = exprsAnnoOut[!duplicated(exprsAnnoOut$Feature),]
-exprsAnnoOut$chr = ss(exprsAnnoOut$Coordinates, ":")
-exprsAnnoOut$start = as.integer(ss(ss(exprsAnnoOut$Coordinates, ":",2),"-"))
-exprsAnnoOut$end = as.integer(ss(ss(ss(exprsAnnoOut$Coordinates, ":",2),"-",2),"\\("))
-exprsAnnoOut = as.data.frame(exprsAnnoOut)
-exprsAnnoOut$WhichTx = sapply(exprsAnnoOut$WhichTx, paste, collapse=";")
-write.table(exprsAnnoOut, row.names=FALSE, sep = "\t",
-	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/eqtl_exprsAnno_replicate.txt.gz"))
-
-## SNP anno	
-snpAnnoOut = allEqtlsRep[,c(1,10)]
-snpAnnoOut = snpAnnoOut[!duplicated(snpAnnoOut$SNP),]
-mm = match(snpAnnoOut$SNP, snpMap$SNP)
-snpMapTmp = snpMap[mm,]
-colnames(snpMapTmp)[c(1,3,4:5)] = c("chr","pos","Counted","Ref")
-snpMapTmp$chr = paste0("chr", snpMapTmp$chr)
-snpAnnoOut = cbind(snpAnnoOut, 
-	snpMapTmp[,c("chr","pos","Counted","Ref","numImp")])
-snpAnnoOut = as.data.frame(snpAnnoOut)
-write.table(snpAnnoOut, row.names=FALSE, sep = "\t",
-	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/eqtl_snpAnno_replicate.txt.gz"))
-
-## expression data
-cleanExprs = rbind(cleanGeneSub, cleanExonSub, cleanJxnSub,
-	cleanTxSub, cleanErSub)
-write.table(cleanExprs, sep = "\t",
-	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/eqtl_log2cleanExprsData_replicate.txt.gz"))
-
-## snp data
-write.table(snpSub, sep = "\t",
-	file=gzfile("/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/eqtl_snpData_replicate.txt.gz"))

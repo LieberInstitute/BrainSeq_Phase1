@@ -163,6 +163,43 @@ statListGR = GRangesList(c(Gene = outGene[,n], Exon = outExon[,n],
 save(statList, file="rdas/devStats_controlSamples.rda")
 
 ##########################
+## make database inputs ##
+load("rdas/devStats_controlSamples.rda")
+
+outPath = "/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/Devel/"
+
+## write out expression
+tmp = mclapply(1:5, function(i) {
+	y = xformData[[i]]
+	yClean = cleaningY(y, mod, P=8)
+	write.csv(yClean, file = gzfile(paste0(outPath,
+		names(xformData)[i], "_cleanedExpression_n320Controls.csv.gz")))
+},mc.cores=5)
+
+## write out stats
+for(i in seq(along=statList)) {
+	cat(".")
+	x = as.data.frame(mcols(statList[[i]]))
+	x$Coord_hg19 = paste0(seqnames(statList[[i]]), ":",
+		start(statList[[i]]), "-", end(statList[[i]]))
+	rownames(x) = names(statList[[i]])
+	write.csv(x, file = gzfile(paste0(outPath,
+		names(statList)[i], "_devStats_n320Controls.csv.gz")))
+}
+
+## write out fit values for the lines
+tmp = mclapply(1:5, function(i) {
+	y = xformData[[i]]
+	yClean = cleaningY(y, mod, P=8)
+	f = lmFit(yClean, mod[,1:8])
+	fitt = fitted(f)
+	colnames(fitt) = colnames(yClean)
+	write.csv(fitt, file = gzfile(paste0(outPath,
+		names(xformData)[i], "_fittedExpression_onClean_n320Controls.csv.gz")))
+},mc.cores=5)
+
+
+##########################
 ### metrics/output #######
 ##########################
 load("rdas/devStats_controlSamples.rda")

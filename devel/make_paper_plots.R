@@ -39,7 +39,7 @@ regionMat = regionMat[,controlIndex]
 ###### filter gene, exon, junction
 exprsGeneIndex = which(rowMeans(geneRpkm) > 0.01)
 exprsExonIndex = which(rowMeans(exonRpkm) > 0.1)
-exonMap$coord = paste0("chr",exonMap$Chr, ":", exonMap$Start, "-",
+exonMap$coord = paste0(exonMap$Chr, ":", exonMap$Start, "-",
 	exonMap$End,"(",exonMap$Strand, ")")
 exprsJxnIndex = which(rowMeans(jRpkm > 0.2) & jMap$code !="Novel")
 
@@ -62,7 +62,7 @@ adult[adult < 0] = 0 # linear spline
 mod = model.matrix(~Age + fetal + birth + infant +
 	child + teen + adult + snpPC1 + snpPC2 + snpPC3 + 
 	 Sex, data=pd)
-	 
+ 
 	
 ## load developmental stats
 load("/users/ajaffe/Lieber/Projects/RNAseq/firstRnaSeqPaper/devel/rdas/isoform_switch_devel_byFeature.rda")
@@ -254,3 +254,78 @@ for(i in 2:3) {
 		col="orange",density = 25,border="darkorange")	
 }
 dev.off()
+
+#########################################
+####### examples of iso switches ########
+#########################################
+
+## just PGC2 loci
+GPM6A_switch = do.call("rbind", lapply(switchList, function(x) x[which(x$Symbol=="GPM6A"),]))
+exonMap[c(GPM6A_switch$minFeature[1], GPM6A_switch$maxFeature[1]),]
+
+### example of switching
+geneStats = statList$Gene[statList$Gene$Symbol == "GPM6A",]
+
+## plots
+# pdf("plots/DAB1_trajectory_geneAndExon.pdf", h=5,w=7)
+pdf("plots/GPM6A_trajectory.pdf", h=5,w=7)
+agePlotter(as.numeric(log2(geneRpkm[names(geneStats),]+1)), pd$Age, mod, 
+	ylab="log2 RPKM", mainText="GPM6A - Full Gene", smoothIt=FALSE)
+eInd = which(statList$Exon$Symbol == "GPM6A")
+for(i in seq(along=eInd)) {
+	ii = eInd[i]
+	agePlotter(log2(as.numeric(exonRpkm[ii,])+1), pd$Age, mod, smoothIt=FALSE,
+		ylab="Log2 RPKM", mainText=paste("GPM6A - Exon", exonMap$coord[ii]))
+}
+dev.off()
+
+
+
+####	
+ind = which(jRange[,1] < -0.4 & jRange[,2] > 0.4)
+ffTmp = ffJxn[which(ffJxn$geneIndex == names(ind)),]
+
+pdf("plots/CRTC2_trajectory_geneExonAndJxn.pdf", h=4,w=6)
+agePlotter(as.numeric(geneRpkm[unique(ffTmp$geneIndex),]), # gene
+	pd$Age, mod, ylab="RPKM", mainText="CRTC2 - Full Gene",ageLabel="top")
+eInd= which(exonMap$Symbol == "CRTC2") # exon
+for(i in seq(along=eInd)) {
+	ii = eInd[i]
+	lc = ifelse(ffExon$ageCorr[ii] > 0, "top", "bottom")
+	agePlotter(as.numeric(exonRpkm[ii,]), pd$Age, mod, 
+		ylab="RPKM", mainText=paste("CRTC2 - Exon", 
+		exonMap$coord[ii]), ageLabel=lc)
+}
+jInd = match(rownames(ffTmp), names(jMap))
+for(i in seq(along=jInd)) {
+	ii = jInd[i]
+	lc = ifelse(ffJxn$ageCorr[ii] > 0, "top", "bottom")
+	agePlotter(as.numeric(jRpkm[ii,]), 	pd$Age, mod, ylab="RP80M", 
+		mainText=paste("CRTC2 - Junction", names(jMap)[ii]),
+		ageLabel=lc)
+}
+dev.off()
+
+## make tx
+gr = with(geneMap[unique(ffTmp$geneIndex),], 
+	GRanges(Chr, IRanges(Start-100, End+100)))
+gr2 = GRanges("chr1", IRanges(start(gr), 153922100))
+txdb = loadDb("ensembl_v75_txdb.sqlite")
+seqlevels(txdb,force=TRUE) = c(1:22,"X","Y","MT")
+seqlevels(txdb) = paste0("chr", c(1:22,"X","Y","M"))
+
+pdf("plots/CRTC2_tx_structure.pdf", h=4,w=12)
+par(mar=c(5,2,2,2))
+plotTranscripts(gr, txdb)
+plotTranscripts(gr2, txdb)
+dev.off()
+
+## p-values for plot
+ffGene[unique(ffTmp$geneIndex),]
+ffTmp[2:3,]
+ffExon[match(c("chr1:153920145-153920805(-)",
+	"chr1:153920934-153921120(-)","chr1:153921310-153921376(-)",
+	"chr1:153921591-153921860(-)"), exonMap$coord),]
+
+	
+	

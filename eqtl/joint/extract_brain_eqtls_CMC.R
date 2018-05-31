@@ -85,31 +85,26 @@ mean(!is.na(geneEqtl$inCMC))
 mean(!is.na(geneEqtl$inCMC[!duplicated(geneEqtl$rank)]))
 
 geneEqtl2 = geneEqtl[!is.na(geneEqtl$inCMC),]
-geneEqtl2 = geneEqtl2[!duplicated(geneEqtl2$rank),]
 geneEqtl2$snpCounted = snpMap$COUNTED[
 	match(as.character(geneEqtl2$snps), snpMap$SNP)]
 
 exonEqtl$inCMC = match(exonEqtl$snp_chrpos, snpMapCmc$chrpos)
 exonEqtl2 = exonEqtl[!is.na(exonEqtl$inCMC),]
-exonEqtl2 = exonEqtl2[!duplicated(exonEqtl2$rank),]
 exonEqtl2$snpCounted = snpMap$COUNTED[
 	match(as.character(exonEqtl2$snps), snpMap$SNP)]
 
 jxnEqtl$inCMC = match(jxnEqtl$snp_chrpos, snpMapCmc$chrpos)
 jxnEqtl2 = jxnEqtl[!is.na(jxnEqtl$inCMC),]
-jxnEqtl2 = jxnEqtl2[!duplicated(jxnEqtl2$rank),]
 jxnEqtl2$snpCounted = snpMap$COUNTED[
 	match(as.character(jxnEqtl2$snps), snpMap$SNP)]
 
 derEqtl$inCMC = match(derEqtl$snp_chrpos, snpMapCmc$chrpos)
 derEqtl2 = derEqtl[!is.na(derEqtl$inCMC),]
-derEqtl2 = derEqtl2[!duplicated(derEqtl2$rank),]
 derEqtl2$snpCounted = snpMap$COUNTED[
 	match(as.character(derEqtl2$snps), snpMap$SNP)]
 	
 transEqtl$inCMC = match(transEqtl$snp_chrpos, snpMapCmc$chrpos)
 transEqtl2 = transEqtl[!is.na(transEqtl$inCMC),]
-transEqtl2 = transEqtl2[!duplicated(transEqtl2$rank),]
 transEqtl2$snpCounted = snpMap$COUNTED[
 	match(as.character(transEqtl2$snps), snpMap$SNP)]
 
@@ -146,25 +141,27 @@ pd$snpColumn = match(paste0(pd$Genotyping_Sample_ID, "_",
 
 pdSub = pd
 mds = mds[match(pdSub$Genotyping_Sample_ID, mds$FID),]
-colnames(snpSub) = pdSub$Genotyping_Sample_ID
+snpSub = snpSub[,match(paste0(pd$Genotyping_Sample_ID, "_", 
+	pd$Genotyping_Sample_ID), colnames(snpSub))]
+colnames(snpSub) = pdSub$Individual_ID
 
 # ##################################
 # ## subset to eqtl features #######
-geneRpkmSub = geneRpkm[geneEqtl2$gene,]
-geneMapSub = geneMap[geneEqtl2$gene,]
+geneRpkmSub = geneRpkm[unique(geneEqtl2$gene),]
+geneMapSub = geneMap[unique(geneEqtl2$gene),]
 
-exonRpkmSub = exonRpkm[exonEqtl2$gene,]
-exonMapSub = exonMap[exonEqtl2$gene,]
+exonRpkmSub = exonRpkm[unique(exonEqtl2$gene),]
+exonMapSub = exonMap[unique(exonEqtl2$gene),]
 
-mmJxn = match(jxnEqtl2$gene, rownames(jRpkm))
+mmJxn = match(unique(jxnEqtl2$gene), rownames(jRpkm))
 jRpkmSub = jRpkm[mmJxn[!is.na(mmJxn)],]
 jMapSub = jMap[mmJxn[!is.na(mmJxn)]]
 
-regionMatSub = regionMatCmc[derEqtl2$gene,]
-covMapSub = regionsCmc[derEqtl2$gene]
+regionMatSub = regionMatCmc[unique(derEqtl2$gene),]
+covMapSub = regionsCmc[unique(derEqtl2$gene)]
 
-tFpkmSub = tFpkmCmc[transEqtl2$gene,]
-tMapSub = tMap[transEqtl2$gene]
+tFpkmSub = tFpkmCmc[unique(transEqtl2$gene),]
+tMapSub = tMap[unique(transEqtl2$gene)]
 
 ###############
 ## do PCA #####
@@ -191,4 +188,4 @@ save(pdSub, mds, snpSub, snpMapSub, geneMapSub, geneRpkmSub,
 	exonRpkmSub, exonMapSub, jRpkmSub, jMapSub, 
 	tFpkmSub, tMapSub, 	pcList,  regionMatSub, covMapSub, 
 	geneEqtl2, exonEqtl2, jxnEqtl2,transEqtl2,derEqtl2,
-	file="rdas/CMC_brainEqtl_subsets.rda",compress=TRUE)
+	file="/dcl01/lieber/ajaffe/PublicData/CMC/CMC_brainEqtl_subsets.rda",compress=TRUE)

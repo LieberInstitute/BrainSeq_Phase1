@@ -143,3 +143,8 @@ save(snp, snpMap, file="/dcs01/ajaffe/Brain/DLPFC_PolyA/szControl/data/snpData_L
 
 # write sample name
 cat(pd$RNum, file="sample_rnums.txt",sep="\n")
+
+## write out database for phenotype
+pdOut = pd[,c("RNum", "Dx", "Age")]
+write.csv(pdOut, file = "/dcl01/lieber/ajaffe/Brain/DLPFC_PolyA/szControl/db/phenotype_basic_n495.csv",
+	row.names=FALSE)

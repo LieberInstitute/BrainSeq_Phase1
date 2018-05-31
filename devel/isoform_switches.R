@@ -11,48 +11,48 @@ load("rdas/devStats_controlSamples.rda")
 #################################
 ###### Create isoform switches ##########
 
-# # drop genes
-# rangeList = lapply(statList[-1], function(x) {
-	# cat(".")
-	# xSig = x[which(x$p_bonf < 0.05),]
-	# xList = split(xSig, factor(xSig$EnsemblGeneID,
-		# levels = unique(x$EnsemblGeneID)))
-	# xList = xList[elementLengths(xList) > 0]
-	# theRange = t(sapply(split(xSig$ageCorr,factor(xSig$EnsemblGeneID,
-		# levels = unique(xSig$EnsemblGeneID))), range))
-	# theRange = as.data.frame(theRange)
-	# colnames(theRange) = c("negCorr","posCorr") 
+# drop genes
+rangeList = lapply(statList[-1], function(x) {
+	cat(".")
+	xSig = x[which(x$p_bonf < 0.05),]
+	xList = split(xSig, factor(xSig$EnsemblGeneID,
+		levels = unique(x$EnsemblGeneID)))
+	xList = xList[lengths(xList) > 0]
+	theRange = t(sapply(split(xSig$ageCorr,factor(xSig$EnsemblGeneID,
+		levels = unique(xSig$EnsemblGeneID))), range))
+	theRange = as.data.frame(theRange)
+	colnames(theRange) = c("negCorr","posCorr") 
 	
-	# ## get min and max feature
-	# mins = xSig[order(xSig$ageCorr)]
-	# mins = mins[!duplicated(mins$EnsemblGeneID) & 
-		# !is.na(mins$EnsemblGeneID)]
-	# theRange$minFeature = names(mins)[match(rownames(theRange),
-		# mins$EnsemblGeneID)] 
-	# maxs = xSig[order(xSig$ageCorr,decreasing=TRUE)]
-	# maxs = maxs[!duplicated(maxs$EnsemblGeneID) & 
-		# !is.na(maxs$EnsemblGeneID)]
-	# theRange$maxFeature = names(maxs)[match(rownames(theRange),
-		# maxs$EnsemblGeneID)] 
+	## get min and max feature
+	mins = xSig[order(xSig$ageCorr)]
+	mins = mins[!duplicated(mins$EnsemblGeneID) & 
+		!is.na(mins$EnsemblGeneID)]
+	theRange$minFeature = names(mins)[match(rownames(theRange),
+		mins$EnsemblGeneID)] 
+	maxs = xSig[order(xSig$ageCorr,decreasing=TRUE)]
+	maxs = maxs[!duplicated(maxs$EnsemblGeneID) & 
+		!is.na(maxs$EnsemblGeneID)]
+	theRange$maxFeature = names(maxs)[match(rownames(theRange),
+		maxs$EnsemblGeneID)] 
 		
-	# ## other metrics
-	# theRange$numFeatures = table(x$EnsemblGeneID)[rownames(theRange)]
-	# theRange$numSigFeatures = elementLengths(xList)
-	# theRange$Symbol = x$Symbol[match(rownames(theRange), x$EnsemblGeneID)]
-	# theRange$EntrezID = x$EntrezID[match(rownames(theRange), x$EnsemblGeneID)]
+	## other metrics
+	theRange$numFeatures = table(x$EnsemblGeneID)[rownames(theRange)]
+	theRange$numSigFeatures = lengths(xList)
+	theRange$Symbol = x$Symbol[match(rownames(theRange), x$EnsemblGeneID)]
+	theRange$EntrezID = x$EntrezID[match(rownames(theRange), x$EnsemblGeneID)]
 	
-	# return(theRange)
-# })
+	return(theRange)
+})
 
-# ### significant switches
-# switchList = lapply(rangeList, function(x) {
-	# x$corDiff = x$posCorr - x$negCorr
-	# x[which(x$negCorr < 0 & x$posCorr > 0 ),]
-# })
-# sapply(switchList, nrow)
+### significant switches
+switchList = lapply(rangeList, function(x) {
+	x$corDiff = x$posCorr - x$negCorr
+	x[which(x$negCorr < 0 & x$posCorr > 0 ),]
+})
+sapply(switchList, nrow)
 
-# # save
-# save(switchList, file="rdas/isoform_switch_devel_byFeature.rda")
+# save
+save(switchList, file="rdas/isoform_switch_devel_byFeature.rda")
 
 ############################################
 #### gene ontology on genes that switch ####
@@ -66,6 +66,8 @@ geneSwitchList = lapply(geneSwitchList, function(x)
 allGenesSwitch = unique(unlist(geneSwitchList))
 geneMatSwitch = sapply(geneSwitchList, function(x) allGenesSwitch %in% x)
 rownames(geneMatSwitch) = allGenesSwitch
+
+dim(geneMatSwitch)
 
 pdf("plots/venn_geneIDs_devChanges_withSwitch.pdf",h=4.5,w=4.5)
 vennDiagram(vennCounts(geneMatSwitch))
@@ -86,19 +88,19 @@ entrezBgList = lapply(statList[-1], function(x) {
 	o = x$EntrezID[!is.na(x$p_bonf)]
 	unique(o[!is.na(o)])
 })
-elementLengths(entrezBgList)
+lengths(entrezBgList)
 
 entrezGeneSwitchList = lapply(switchList, function(x) {
 	unique(x$EntrezID[!is.na(x$EntrezID)])
 })
-elementLengths(entrezGeneSwitchList)
+lengths(entrezGeneSwitchList)
 
 ## also just regulated genes
 entrezBgList_dev = lapply(statList[-1], function(x) {
 	o = x$EntrezID[which(x$p_bonf < 0.05)]
 	unique(o[!is.na(o)])
 })
-elementLengths(entrezBgList_dev)
+lengths(entrezBgList_dev)
 
 ############################
 ### kegg on switches #######
@@ -108,8 +110,8 @@ keggListSwitch_dev = mapply(function(g, bg) {
 	ht=enrichKEGG(as.character(g), 
 		organism="human", pvalueCutoff=1, 
 		universe= as.character(bg),minGSSize=5,
-		pAdjustMethod="none", qvalueCutoff=1, readable=TRUE)
-	summary(ht) 
+		pAdjustMethod="none", qvalueCutoff=1)
+	as.data.frame(ht) 
 }, entrezGeneSwitchList, entrezBgList_dev, SIMPLIFY=FALSE)
 
 keggSwitchMat = do.call("rbind", lapply(keggListSwitch_dev,
@@ -138,18 +140,18 @@ table(rowSums(keggSwitchMat[,grep("qvalue", colnames(keggSwitchMat))] < 0.05,
 ## development background
 goListSwitch_MF_dev = mapply(function(g, bg) {
 	ht=enrichGO(as.character(g), 
-		organism="human", pvalueCutoff=1, 
+		OrgDb = "org.Hs.eg.db", pvalueCutoff=1, 
 		universe= as.character(bg),minGSSize=5,
 		pAdjustMethod="none", qvalueCutoff=1, readable=TRUE)
-	summary(ht) 
+	as.data.frame(ht) 
 }, entrezGeneSwitchList, entrezBgList_dev, SIMPLIFY=FALSE)
 
 goListSwitch_BP_dev = mapply(function(g, bg) {
 	ht=enrichGO(as.character(g), ont = "BP", 
-		organism="human", pvalueCutoff=1, 
+		OrgDb = "org.Hs.eg.db",  pvalueCutoff=1, 
 		universe= as.character(bg),minGSSize=5,
 		pAdjustMethod="none", qvalueCutoff=1, readable=TRUE)
-	summary(ht) 
+	as.data.frame(ht) 
 }, entrezGeneSwitchList, entrezBgList_dev, SIMPLIFY=FALSE)
 
 ################

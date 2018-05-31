@@ -29,7 +29,7 @@ geneBgList = lapply(statList, function(x)
 	unique(x$EnsemblGeneID[!is.na(x$p_bonf)]))
 geneBgList = lapply(geneBgList, function(x)
 	x[!is.na(x) & !grepl("-", x)])
-elementLengths(geneBgList)
+lengths(geneBgList)
 
 ## get expressed genes in each PGC region
 pgcExprsList = lapply(statList, function(x) {
@@ -56,37 +56,6 @@ matPgcList
 ## p-value and ORs for association
 sapply(matPgcList, function(x) chisq.test(x)$p.value)
 sapply(matPgcList, function(x) x[1,1]*x[2,2]/x[1,2]/x[2,1])
-
-####### 
-## dev
-
-pgcDevList = lapply(statList, function(x) {
-	x = x[which(x$p_bonf < 0.05)]
-	oo1 = findOverlaps(gr108, x)
-	ens = x$EnsemblGeneID[subjectHits(oo1)]
-	unique(ens[!is.na(ens) & !grepl("-",ens)])
-})
-
-geneBgDevList = lapply(statList, function(x)
-	unique(x$EnsemblGeneID[which(x$p_bonf < 0.05)]))
-geneBgDevList = lapply(geneBgDevList, function(x) x[!is.na(x) & !grepl("-", x)])
-#### enrichment test
-matPgcList_dev = mapply(function(g,gInPgc,bg) {
-	g = g[!is.na(g) & !grepl("-", g)]
-	m = matrix(c(sum(gInPgc %in% g),
-		sum(! gInPgc %in% g), 
-		sum(! g %in% gInPgc),
-		length(bg) - length(union(g, gInPgc))),
-			byrow=2, nc = 2)
-	rownames(m) = c("inReg", "notReg")
-	colnames(m) = c("isoSw", "noIso")
-	m
-}, geneSwitchList, pgcDevList[-1], geneBgDevList[-1],SIMPLIFY=FALSE)
-matPgcList_dev
-
-## p-value and ORs for association
-sapply(matPgcList_dev, function(x) chisq.test(x)$p.value)
-sapply(matPgcList_dev, function(x) x[1,1]*x[2,2]/x[1,2]/x[2,1])
 
 ####### check expression 
 statList2 = mapply(function(x,y) {
@@ -149,41 +118,14 @@ for(i in 1:ncol(matNull_all)) {
 }
 dev.off()
 
-
-#### dev
-pgcNullList_dev = lapply(statList, function(x) {
-	cat(".")
-	x = x[which(x$p_bonf < 0.05)]
-	map = geneMap[names(geneMap) %in% x$EnsemblGeneID]
-	oo1 = findOverlaps(nullRegions, map)
-	CharacterList(split(names(map)[subjectHits(oo1)],
-		nullRegions$permutation[queryHits(oo1)]))
-})
-
-### enrichment test compared to devel regulated
-matNull_dev = mapply(function(g,gInPgc,bg) {
-	g = g[!is.na(g) & !grepl("-", g)]
-	topleft = sum(gInPgc %in% g)
-	topright = sum(! gInPgc %in% g)
-	bottomleft = length(g) - topleft
-	bottomright = length(bg) - 
-		topleft - topright - bottomleft
-	topleft/bottomleft/topright*bottomright
-}, geneSwitchList, pgcNullList_dev[-1], geneBgDevList[-1])
-
-obsOR_dev = sapply(matPgcList_dev, function(x) x[1,1]*x[2,2]/x[1,2]/x[2,1])
-obsORMat_dev = matrix(obsOR_dev, nc = ncol(matNull_dev),
-	nr = nrow(matNull_dev),byrow=TRUE)
-colMeans(matNull_dev > obsORMat_dev)
-
 ########################
 ## what are the genes? #
-devSwitchGenesPgc = lapply(geneSwitchList, 
-	function(g) {
+devSwitchGenesPgc = mapply(function(g, gInPgc) {
 		g = g[!is.na(g) & !grepl("-", g)]
-		gg = gInPgc2[gInPgc2 %in% g]
-		geneMap[gg,"Symbol"]
-})
+		gg = gInPgc[gInPgc %in% g]
+		geneMap[gg]$Symbol
+},geneSwitchList, pgcExprsList[-1])
+
 uGenePgcSwitch = unique(unlist(devSwitchGenesPgc))
 pgcMatSwitch = sapply(devSwitchGenesPgc, function(x) uGenePgcSwitch %in% x)
 rownames(pgcMatSwitch) = uGenePgcSwitch
@@ -211,6 +153,7 @@ tab = table(meqtlEnrMat[,1], meqtlEnrMat[,2],
 chisq.test(tab) # p=1.96e-8
 tab[1,1]*tab[2,2]/tab[1,2]/tab[2,1]
 
+
 ## pgc specific enrichment
 entrezPgc = geneMap[gInPgc2, "EntrezID"]
 entrezPgc = entrezPgc[!is.na(entrezPgc)]
@@ -235,8 +178,8 @@ xx=load("/users/ajaffe/Lieber/Projects/RNAseq/n36/finalCode/gwasResults_lifted.r
 
 ## get genes in each region, all expressed first
 gwasList = split(gwasLift, gwasLift$Dx)
-ooOther_all = findOverlaps(gwasList, geneMapGR_all)
-gOther_all = split(names(geneMapGR_all)[subjectHits(ooOther_all)], 
+ooOther_all = findOverlaps(gwasList, geneMap)
+gOther_all = split(names(geneMap)[subjectHits(ooOther_all)], 
 	queryHits(ooOther_all))
 names(gOther_all) = names(gwasList)	
 
@@ -246,7 +189,7 @@ matOtherList_all = unlist(lapply(geneSwitchList, function(g) {
 		matrix(c(sum(gInOther %in% g),
 			sum(! gInOther %in% g), 
 			sum(! g %in% gInOther),
-			length(geneMapGR_all) - length(union(g, gInOther))),
+			length(geneMap) - length(union(g, gInOther))),
 				byrow=2, nc = 2)
 	})
 }),recur=FALSE)
@@ -276,3 +219,81 @@ sapply(matOtherList_dev, function(x) chisq.test(x)$p.value)
 sapply(matOtherList_dev, function(x) x[1,1]*x[2,2]/x[1,2]/x[2,1])
 
 
+
+####### 
+## dev
+
+pgcDevList = lapply(statList, function(x) {
+	x = x[which(x$p_bonf < 0.05)]
+	oo1 = findOverlaps(gr108, x)
+	ens = x$EnsemblGeneID[subjectHits(oo1)]
+	unique(ens[!is.na(ens) & !grepl("-",ens)])
+})
+
+geneBgDevList = lapply(statList, function(x)
+	unique(x$EnsemblGeneID[which(x$p_bonf < 0.05)]))
+geneBgDevList = lapply(geneBgDevList, function(x) x[!is.na(x) & !grepl("-", x)])
+#### enrichment test
+matPgcList_dev = mapply(function(g,gInPgc,bg) {
+	g = g[!is.na(g) & !grepl("-", g)]
+	m = matrix(c(sum(gInPgc %in% g),
+		sum(! gInPgc %in% g), 
+		sum(! g %in% gInPgc),
+		length(bg) - length(union(g, gInPgc))),
+			byrow=2, nc = 2)
+	rownames(m) = c("inReg", "notReg")
+	colnames(m) = c("isoSw", "noIso")
+	m
+}, geneSwitchList, pgcDevList[-1], geneBgDevList[-1],SIMPLIFY=FALSE)
+matPgcList_dev
+
+## p-value and ORs for association
+sapply(matPgcList_dev, function(x) chisq.test(x)$p.value)
+sapply(matPgcList_dev, function(x) x[1,1]*x[2,2]/x[1,2]/x[2,1])
+
+
+#### dev
+pgcNullList_dev = lapply(statList, function(x) {
+	cat(".")
+	x = x[which(x$p_bonf < 0.05)]
+	map = geneMap[names(geneMap) %in% x$EnsemblGeneID]
+	oo1 = findOverlaps(nullRegions, map)
+	CharacterList(split(names(map)[subjectHits(oo1)],
+		nullRegions$permutation[queryHits(oo1)]))
+})
+
+### enrichment test compared to devel regulated
+matNull_dev = mapply(function(g,gInPgc,bg) {
+	g = g[!is.na(g) & !grepl("-", g)]
+	topleft = sum(gInPgc %in% g)
+	topright = sum(! gInPgc %in% g)
+	bottomleft = length(g) - topleft
+	bottomright = length(bg) - 
+		topleft - topright - bottomleft
+	topleft/bottomleft/topright*bottomright
+}, geneSwitchList, pgcNullList_dev[-1], geneBgDevList[-1])
+
+obsOR_dev = sapply(matPgcList_dev, function(x) x[1,1]*x[2,2]/x[1,2]/x[2,1])
+obsORMat_dev = matrix(obsOR_dev, nc = ncol(matNull_dev),
+	nr = nrow(matNull_dev),byrow=TRUE)
+colMeans(matNull_dev > obsORMat_dev)
+
+
+#### how many genes in null?
+ooNull = findOverlaps(nullRegions, geneMap)
+ooNullList = split(names(geneMap)[subjectHits(ooNull)],
+	nullRegions$permutation[queryHits(ooNull)])
+ooNullList = lapply(ooNullList,unique)
+
+hist(lengths(ooNullList))
+mean(sum(countOverlaps(gr108, geneMap)) > lengths(ooNullList))
+
+geneMapExprs = geneMap[!is.na(geneMap$p_bonf)]
+ooNullExprs = findOverlaps(nullRegions, geneMapExprs)
+ooNullExprsList = split(names(geneMapExprs)[subjectHits(ooNullExprs)],
+	nullRegions$permutation[queryHits(ooNullExprs)])
+ooNullExprsList = lapply(ooNullExprsList,unique)
+
+hist(lengths(ooNullExprsList))
+sum(countOverlaps(gr108, geneMapExprs))
+mean(sum(countOverlaps(gr108, geneMapExprs)) > lengths(ooNullExprsList))
